@@ -1,0 +1,13 @@
+{
+  "name": "nw-discord-bot",
+  "version": "1.0.0",
+  "description": "a discord bot with various new world related features",
+  "main": "index.js",
+  "author": "Trent Shailer",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.25.0",
+    "discord.js": "^13.3.1"
+  }
+}
