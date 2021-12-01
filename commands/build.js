@@ -187,6 +187,7 @@ async function GetBuildMessage(members, build) {
 }
 
 async function GetMessage(client) {
+	await client.channels.fetch(data.channelId);
 	let channel = client.channels.cache.get(data.channelId);
 	let members = channel.guild.members;
 	let tanks = "";
