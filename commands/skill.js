@@ -134,6 +134,13 @@ async function register(interaction, client) {
 	const type = interaction.options.get("type").value;
 	const level = interaction.options.get("level").value;
 
+	if (level < 150) {
+		return interaction.reply({
+			content: "You must be at least level 150 to be registered",
+			ephemeral: true,
+		});
+	}
+
 	const userId = interaction.user.id;
 
 	data.skills = data.skills.filter((skill) => {
