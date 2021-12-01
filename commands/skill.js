@@ -96,6 +96,7 @@ ${categories.furnishing}
 
 
 *Use \`/skill\` and follow the prompts to add your skill level!*
+*Set level to 0 to remove it*
 *Minimum 150 required to be listed*`;
 }
 
@@ -133,6 +134,15 @@ async function setchannel(interaction, client) {
 async function register(interaction, client) {
 	const type = interaction.options.get("type").value;
 	const level = interaction.options.get("level").value;
+	const userId = interaction.user.id;
+	if (level === 0) {
+		data.skills = data.skills.filter((skill) => {
+			return !(skill.type === type && skill.userId === userId);
+		});
+
+		await SaveData(client);
+		return interaction.reply({ content: "Skill removed", ephemeral: true });
+	}
 
 	if (level < 150) {
 		return interaction.reply({
@@ -140,8 +150,6 @@ async function register(interaction, client) {
 			ephemeral: true,
 		});
 	}
-
-	const userId = interaction.user.id;
 
 	data.skills = data.skills.filter((skill) => {
 		return !(skill.type === type && skill.userId === userId);
