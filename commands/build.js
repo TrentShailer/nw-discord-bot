@@ -226,12 +226,13 @@ async function SaveData(client) {
 async function setchannel(interaction, client) {
 	const channelId = interaction.channelId;
 
+	data.channelId = channelId;
+
 	let content = await GetMessage(client);
 	let message = await client.channels.cache.get(channelId).send(content);
 
 	const messageId = message.id;
 
-	data.channelId = channelId;
 	data.messageId = messageId;
 
 	SaveData(client);
