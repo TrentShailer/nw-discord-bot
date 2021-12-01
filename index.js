@@ -4,10 +4,17 @@ const { Client, Collection, Intents } = require("discord.js");
 const { token } = require("./config.json");
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-let data = {};
-if (!fs.existsSync(path.join(__dirname, "./data/data.json"))) {
-	data = { channelId: "", messageId: "", builds: [] };
-	fs.writeFileSync(path.join(__dirname, "./data/data.json"), JSON.stringify(data));
+let builds = {};
+let skills = {};
+
+if (!fs.existsSync(path.join(__dirname, "./data/builds.json"))) {
+	builds = { channelId: "", messageId: "", builds: [] };
+	fs.writeFileSync(path.join(__dirname, "./data/builds.json"), JSON.stringify(builds));
+}
+
+if (!fs.existsSync(path.join(__dirname, "./data/skills.json"))) {
+	skills = { channelId: "", messageId: "", skills: [] };
+	fs.writeFileSync(path.join(__dirname, "./data/skills.json"), JSON.stringify(skills));
 }
 
 client.commands = new Collection();

@@ -2,7 +2,7 @@ const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discord
 const fs = require("fs");
 const path = require("path");
 
-let data = require("../data/data.json");
+let data = require("../data/builds.json");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -214,7 +214,7 @@ ${dps}
 }
 
 async function SaveData(client) {
-	fs.writeFileSync(path.join(__dirname, "../data/data.json"), JSON.stringify(data, null, 2));
+	fs.writeFileSync(path.join(__dirname, "../data/builds.json"), JSON.stringify(data, null, 2));
 
 	let channels = client.channels.cache;
 	let messages = channels.get(data.channelId).messages;
@@ -224,7 +224,11 @@ async function SaveData(client) {
 }
 
 async function setchannel(interaction, client) {
-	if(interaction.user.id !== "121080735187730434") return interaction.reply({content: "You don't have permission to do this", ephemeral: true})
+	if (interaction.user.id !== "121080735187730434")
+		return interaction.reply({
+			content: "You don't have permission to do this",
+			ephemeral: true,
+		});
 	const channelId = interaction.channelId;
 
 	data.channelId = channelId;
