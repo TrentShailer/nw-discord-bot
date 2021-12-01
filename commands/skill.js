@@ -147,7 +147,7 @@ async function register(interaction, client) {
 		return !(skill.type === type && skill.userId === userId);
 	});
 
-	data.builds.push({ userId: userId, type: type, level: level });
+	data.skills.push({ userId: userId, type: type, level: level });
 
 	await SaveData(client);
 
