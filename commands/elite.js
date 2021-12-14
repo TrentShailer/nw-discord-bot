@@ -68,7 +68,7 @@ async function setchannel(interaction, client) {
 	interaction.reply({ content: "Elites will now be displayed here", ephemeral: true });
 }
 
-async function GetAreaMessage(area) {
+function GetAreaMessage(area) {
 	let now = new Date();
 	let diff = now.getTime() - area.timestamp;
 	let hours = Math.floor(diff / 3600000);
@@ -92,7 +92,7 @@ async function GetEntryMessage(members, entry) {
 
 	let areas = ``;
 
-	entry.areas.forEach((area) => (areas += await GetAreaMessage(area)));
+	entry.areas.forEach((area) => (areas += GetAreaMessage(area)));
 
 	return `**${name}**
 ${areas}`;
