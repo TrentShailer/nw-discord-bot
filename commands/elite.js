@@ -105,7 +105,7 @@ async function GetMessage(client) {
 
 	let table = ``;
 
-	data.entries.forEach((entry) => {
+	await data.entries.forEach(async (entry) => {
 		table += await GetEntryMessage(members, entry);
 	});
 
