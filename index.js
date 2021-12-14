@@ -6,6 +6,7 @@ const { token } = require("./config.json");
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 let builds = {};
 let skills = {};
+let elites = {};
 
 if (!fs.existsSync(path.join(__dirname, "./data/builds.json"))) {
 	builds = { channelId: "", messageId: "", builds: [] };
@@ -15,6 +16,11 @@ if (!fs.existsSync(path.join(__dirname, "./data/builds.json"))) {
 if (!fs.existsSync(path.join(__dirname, "./data/skills.json"))) {
 	skills = { channelId: "", messageId: "", skills: [] };
 	fs.writeFileSync(path.join(__dirname, "./data/skills.json"), JSON.stringify(skills));
+}
+
+if (!fs.existsSync(path.join(__dirname, "./data/elites.json"))) {
+	elites = { channelId: "", messageId: "", entries: [] };
+	fs.writeFileSync(path.join(__dirname, "./data/elites.json"), JSON.stringify(elites));
 }
 
 client.commands = new Collection();
