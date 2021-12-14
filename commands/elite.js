@@ -11,7 +11,10 @@ module.exports = {
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName("setchannel")
-				.setDescription("Sets the channel to view your guild member's craft skills")
+				.setDescription("Sets the channel to view your elite cooldowns")
+		)
+		.addSubcommand((subcommand) =>
+			subcommand.setName("update").setDescription("Updates the cooldown message")
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -37,6 +40,8 @@ module.exports = {
 		switch (interaction.options.getSubcommand()) {
 			case "setchannel":
 				return setchannel(interaction, client);
+			case "update":
+				return SaveData(client);
 			case "reset":
 				return reset(interaction, client);
 		}
