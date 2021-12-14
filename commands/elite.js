@@ -41,7 +41,7 @@ module.exports = {
 			case "setchannel":
 				return setchannel(interaction, client);
 			case "update":
-				return Update(client);
+				return Update(interaction, client);
 			case "reset":
 				return reset(interaction, client);
 		}
