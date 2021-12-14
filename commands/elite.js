@@ -41,7 +41,7 @@ module.exports = {
 			case "setchannel":
 				return setchannel(interaction, client);
 			case "update":
-				return SaveData(client);
+				return Update(client);
 			case "reset":
 				return reset(interaction, client);
 		}
@@ -128,7 +128,15 @@ async function SaveData(client) {
 	let message = messages.cache.get(data.messageId);
 	message.edit(await GetMessage(client));
 }
+async function Update(interaction, client) {
+	let channels = client.channels.cache;
+	let messages = channels.get(data.channelId).messages;
+	await messages.fetch(data.messageId);
+	let message = messages.cache.get(data.messageId);
+	message.edit(await GetMessage(client));
 
+	interaction.reply({ content: "Action Successful", ephemeral: true });
+}
 async function reset(interaction, client) {
 	const area = interaction.options.get("area").value;
 	const userId = interaction.user.id;
