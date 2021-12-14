@@ -132,9 +132,9 @@ async function reset(interaction, client) {
 	const now = new Date();
 
 	if (
-		!data.entries.filter((entry) => {
+		data.entries.filter((entry) => {
 			return entry.userId === userId;
-		})
+		}).length === 0
 	) {
 		// Push a new user with their elite zone and timestamp to data
 		data.entries.push({ userId: userId, areas: [{ area: area, timestamp: now.getTime() }] });
