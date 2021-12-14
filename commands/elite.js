@@ -92,7 +92,7 @@ async function GetEntryMessage(members, entry) {
 
 	let areas = ``;
 
-	entry.areas.forEach((area) => (areas += GetAreaMessage(area)));
+	entry.areas.forEach((area) => (areas += await GetAreaMessage(area)));
 
 	return `**${name}**
 ${areas}`;
@@ -106,7 +106,7 @@ async function GetMessage(client) {
 	let table = ``;
 
 	data.entries.forEach((entry) => {
-		table += GetEntryMessage(members, entry);
+		table += await GetEntryMessage(members, entry);
 	});
 
 	return `
