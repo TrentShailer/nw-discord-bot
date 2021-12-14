@@ -70,17 +70,14 @@ async function setchannel(interaction, client) {
 
 function GetAreaMessage(area) {
 	let now = new Date();
-	let diff = now.getTime() - area.timestamp;
+	let diff = area.timestamp - now.getTime();
+	if (diff < 0) {
+		return `${area.area} - Ready\n`;
+	}
 	let hours = Math.floor(diff / 3600000);
 	let minutes = Math.floor((diff - hours * 3600000) / 60000);
 
-	let timeMessage = ``;
-
-	if (hours === 0 && minutes === 0) {
-		timeMessage = "Ready";
-	} else {
-		timeMessage = `${hours > 0 ? `${hours}h ` : ``}${minutes > 0 ? `${minutes}m` : ``}`;
-	}
+	let timeMessage = `${hours > 0 ? `${hours}h ` : ``}${minutes > 0 ? `${minutes}m` : ``}`;
 
 	return `${area.area} - ${timeMessage}\n`;
 }
@@ -139,7 +136,10 @@ async function reset(interaction, client) {
 		}).length === 0
 	) {
 		// Push a new user with their elite zone and timestamp to data
-		data.entries.push({ userId: userId, areas: [{ area: area, timestamp: now.getTime() }] });
+		data.entries.push({
+			userId: userId,
+			areas: [{ area: area, timestamp: now.getTime() + 86400000 }],
+		});
 		await SaveData(client);
 		return interaction.reply({ content: "Action Successful", ephemeral: true });
 	} else {
@@ -152,7 +152,7 @@ async function reset(interaction, client) {
 		// to have an updated timestamp
 		entry.areas = entry.areas.map((a) => {
 			if (a.area === area) {
-				a.timestamp = now.getTime();
+				a.timestamp = now.getTime() + 86400000;
 			}
 			return a;
 		});
