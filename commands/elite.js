@@ -10,6 +10,11 @@ module.exports = {
 		.setDescription("Managing your elite POI cooldowns")
 		.addSubcommand((subcommand) =>
 			subcommand
+				.setName("setchannel")
+				.setDescription("Sets the channel to view your guild member's craft skills")
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
 				.setName("reset")
 				.setDescription("Reset the cooldown of an elite POI to 24 hours")
 				.addStringOption((option) =>
@@ -30,6 +35,8 @@ module.exports = {
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
+			case "setchannel":
+				return setchannel(interaction, client);
 			case "reset":
 				return reset(interaction, client);
 		}
@@ -39,6 +46,27 @@ module.exports = {
 		});
 	},
 };
+
+async function setchannel(interaction, client) {
+	if (interaction.user.id !== "121080735187730434")
+		return interaction.reply({
+			content: "You don't have permission to do this",
+			ephemeral: true,
+		});
+	const channelId = interaction.channelId;
+
+	data.channelId = channelId;
+
+	let content = await GetMessage(client);
+	let message = await client.channels.cache.get(channelId).send(content);
+
+	const messageId = message.id;
+
+	data.messageId = messageId;
+
+	SaveData(client);
+	interaction.reply({ content: "Elites will now be displayed here", ephemeral: true });
+}
 
 async function GetAreaMessage(area) {
 	let now = new Date();
