@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 let data = require("../data/elites.json");
+const { MessageEmbed } = require("discordjs");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -63,7 +64,7 @@ async function setchannel(interaction, client) {
 	data.channelId = channelId;
 
 	let content = await GetMessage(client);
-	let message = await client.channels.cache.get(channelId).send(content);
+	let message = await client.channels.cache.get(channelId).send({ embeds: [content] });
 
 	const messageId = message.id;
 
@@ -87,19 +88,22 @@ function GetAreaMessage(area) {
 	return `${area.area} - ${timeMessage}\n`;
 }
 
-async function GetEntryMessage(members, entry) {
-	await members.fetch(entry.userId);
-	let member = members.cache.get(entry.userId);
-	let name = member ? member.displayName : "undefined";
-
+async function GetEntryMessage(entry) {
 	let areas = ``;
 
 	for (let area of entry.areas) {
 		areas += GetAreaMessage(area);
 	}
 
-	return `**${name}**
-${areas}`;
+	return `${areas}`;
+}
+
+async function GetName() {
+	await members.fetch(entry.userId);
+	let member = members.cache.get(entry.userId);
+	let name = member ? member.displayName : "undefined";
+
+	return `**${name}**`;
 }
 
 async function GetMessage(client) {
@@ -107,16 +111,16 @@ async function GetMessage(client) {
 	let channel = client.channels.cache.get(data.channelId);
 	let members = channel.guild.members;
 
-	let table = ``;
+	let embed = new MessageEmbed()
+		.setColor("#e53935")
+		.setTitle("Elite POI Cooldowns")
+		.setFooter("*Use `/elite` and follow the prompts to add your cooldowns!*");
 
 	for (let entry of data.entries) {
-		table += await GetEntryMessage(members, entry);
+		embed = embed.addField(await GetName(members, entry), await GetEntryMessage(entry), true);
 	}
 
-	return `
-${table}
-
-*Use \`/elite\` and follow the prompts to add your cooldowns!*`;
+	return embed;
 }
 
 async function SaveData(client) {
@@ -126,17 +130,19 @@ async function SaveData(client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit(await GetMessage(client));
+	message.edit({ embeds: GetMessage(client) });
 }
+
 async function Update(interaction, client) {
 	let channels = client.channels.cache;
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit(await GetMessage(client));
+	message.edit({ embeds: GetMessage(client) });
 
 	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
+
 async function reset(interaction, client) {
 	const area = interaction.options.get("area").value;
 	const userId = interaction.user.id;
