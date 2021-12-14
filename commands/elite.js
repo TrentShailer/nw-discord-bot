@@ -2,7 +2,7 @@ const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require("@discord
 const fs = require("fs");
 const path = require("path");
 
-let data = require("../data/skills.json");
+let data = require("../data/elites.json");
 
 module.exports = {
 	data: new SlashCommandBuilder()
