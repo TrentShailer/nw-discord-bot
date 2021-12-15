@@ -130,15 +130,16 @@ async function SaveData(client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit({ embeds: [await GetMessage(client)] });
+	let content = await GetMessage(client);
+	message.edit({ embeds: [content] });
 }
-
 async function Update(interaction, client) {
 	let channels = client.channels.cache;
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit({ embeds: [await GetMessage(client)] });
+	let content = await GetMessage(client);
+	message.edit({ embeds: [content] });
 
 	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
