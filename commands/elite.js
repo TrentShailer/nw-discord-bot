@@ -123,7 +123,9 @@ async function GetMessage(client) {
 	let embed = new MessageEmbed()
 		.setColor("#e53935")
 		.setTitle("Elite POI Cooldowns")
-		.setFooter("*Use `/elite` and follow the prompts to add your cooldowns!*");
+		.setFooter(
+			"Use `/elite` and follow the prompts to add your cooldowns!\nReset your cooldown AFTER your run."
+		);
 
 	let entriesWithName = [];
 
