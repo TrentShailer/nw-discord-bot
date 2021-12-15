@@ -52,6 +52,19 @@ module.exports = {
 			ephemeral: true,
 		});
 	},
+	async UpdateProcess(client) {
+		setInterval(async () => {
+			if (data.messageId !== undefined && data.messageId !== "") {
+				let channels = client.channels.cache;
+				let messages = channels.get(data.channelId).messages;
+				await messages.fetch(data.messageId);
+				let message = messages.cache.get(data.messageId);
+				let content = await GetMessage(client);
+				message.edit({ embeds: [content] });
+				console.log("updated");
+			}
+		}, 900000);
+	},
 };
 
 async function setchannel(interaction, client) {

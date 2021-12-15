@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, Intents } = require("discord.js");
 const { token } = require("./config.json");
+const { UpdateProcess } = require("./commands/elite");
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 let builds = {};
@@ -33,6 +34,7 @@ for (const file of commandFiles) {
 
 client.once("ready", async () => {
 	console.log("Ready!");
+	UpdateProcess(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
