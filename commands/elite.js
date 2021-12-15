@@ -34,7 +34,7 @@ module.exports = {
 							["Eternal Pool", "Eternal Pool"],
 							["Myrkguard", "Myrkguard"],
 							["Forecastle", "Forecastle"],
-							["Scorched Mines", "Scorched Mines"],
+							["Mangled Heights", "Mangled Heights"],
 						])
 				)
 		),
