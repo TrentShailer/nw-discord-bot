@@ -168,14 +168,18 @@ async function reset(interaction, client) {
 		// get their entry
 		let entry = data.entries[index];
 
-		// Modify areas to update area that matches the name
-		// to have an updated timestamp
-		entry.areas = entry.areas.map((a) => {
-			if (a.area === area) {
-				a.timestamp = now.getTime() + 86400000;
-			}
-			return a;
-		});
+		if (entry.areas.filter((a) => a.area === area).length === 0) {
+			entry.areas.push({ area: area, timestamp: now.getTime() + 86400000 });
+		} else {
+			// Modify areas to update area that matches the name
+			// to have an updated timestamp
+			entry.areas = entry.areas.map((a) => {
+				if (a.area === area) {
+					a.timestamp = now.getTime() + 86400000;
+				}
+				return a;
+			});
+		}
 
 		// overwrite old entry with new one
 		data.entries[index] = entry;
