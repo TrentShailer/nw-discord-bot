@@ -116,7 +116,15 @@ async function GetMessage(client) {
 		.setTitle("Elite POI Cooldowns")
 		.setFooter("*Use `/elite` and follow the prompts to add your cooldowns!*");
 
-	for (let entry of data.entries) {
+	let sortedEntries = data.entries.sort((a, b) => {
+		let nameA = await GetName(members, a);
+		let nameB = await GetName(members, b);
+		if (nameA < nameB) return -1;
+		if (nameA > nameB) return 1;
+		return 0;
+	});
+
+	for (let entry of sortedEntries) {
 		embed = embed.addField(await GetName(members, entry), await GetEntryMessage(entry), true);
 	}
 
