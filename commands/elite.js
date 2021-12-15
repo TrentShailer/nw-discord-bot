@@ -140,7 +140,9 @@ async function GetMessage(client) {
 		return 0;
 	});
 
-	for (let entry of sortedEntries) {
+	for (let i = 1; i <= sortedEntries.length; i++) {
+		if (i % 3 === 0) embed.addField("\u200b", "\u200b");
+		let entry = sortedEntries[i];
 		embed = embed.addField(await GetName(members, entry), await GetEntryMessage(entry), true);
 	}
 
