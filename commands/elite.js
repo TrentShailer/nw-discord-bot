@@ -61,9 +61,8 @@ module.exports = {
 				let message = messages.cache.get(data.messageId);
 				let content = await GetMessage(client);
 				message.edit({ embeds: [content] });
-				console.log("updated");
 			}
-		}, 900000);
+		}, 60000);
 	},
 };
 
