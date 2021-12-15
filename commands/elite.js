@@ -98,7 +98,7 @@ async function GetEntryMessage(entry) {
 	return `${areas}`;
 }
 
-async function GetName() {
+async function GetName(members, entry) {
 	await members.fetch(entry.userId);
 	let member = members.cache.get(entry.userId);
 	let name = member ? member.displayName : "undefined";
