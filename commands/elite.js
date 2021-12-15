@@ -34,6 +34,7 @@ module.exports = {
 							["Eternal Pool", "Eternal Pool"],
 							["Myrkguard", "Myrkguard"],
 							["Forecastle", "Forecastle"],
+							["Scorched Mines", "Scorched Mines"],
 						])
 				)
 		),
@@ -85,13 +86,21 @@ function GetAreaMessage(area) {
 
 	let timeMessage = `${hours > 0 ? `${hours}h ` : ``}${minutes > 0 ? `${minutes}m` : ``}`;
 
-	return `${area.area} - ${timeMessage}\n`;
+	return `\`${area.area} - ${timeMessage}\`\n`;
 }
 
 async function GetEntryMessage(entry) {
 	let areas = ``;
 
-	for (let area of entry.areas) {
+	let sortedAreas = entry.areas.sort((a, b) => {
+		let nameA = a.area;
+		let nameB = b.area;
+		if (nameA < nameB) return -1;
+		if (nameA > nameB) return 1;
+		return 0;
+	});
+
+	for (let area of sortedAreas) {
 		areas += GetAreaMessage(area);
 	}
 
