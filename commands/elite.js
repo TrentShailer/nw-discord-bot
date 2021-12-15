@@ -130,7 +130,7 @@ async function SaveData(client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit({ embeds: GetMessage(client) });
+	message.edit({ embeds: [await GetMessage(client)] });
 }
 
 async function Update(interaction, client) {
@@ -138,7 +138,7 @@ async function Update(interaction, client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit({ embeds: GetMessage(client) });
+	message.edit({ embeds: [await GetMessage(client)] });
 
 	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
