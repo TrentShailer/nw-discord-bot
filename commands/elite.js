@@ -156,7 +156,9 @@ async function GetMessage(client) {
 
 	for (let i = 1; i <= sortedEntries.length; i++) {
 		let entry = sortedEntries[i - 1];
-		embed.addField(await GetName(members, entry), await GetEntryMessage(entry), true);
+		let entryMessage = await GetEntryMessage(entry);
+		if (entryMessage === undefined || entryMessage === "") continue;
+		embed.addField(await GetName(members, entry), entryMessage, true);
 		//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
 	}
 
