@@ -91,7 +91,7 @@ function GetAreaMessage(area) {
 	let now = new Date();
 	let diff = area.timestamp - now.getTime();
 	if (diff < 0) {
-		return `${area.area} - Ready\n`;
+		return ``;
 	}
 	let hours = Math.floor(diff / 3600000);
 	let minutes = Math.floor((diff - hours * 3600000) / 60000);
