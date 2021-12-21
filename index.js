@@ -34,11 +34,22 @@ for (const file of commandFiles) {
 
 client.once("ready", async () => {
 	console.log("Ready!");
+	if (process.argv[2] === "dev") {
+		client.user.setActivity("Under Development");
+		client.user.setStatus("dnd");
+	} else client.user.setActivity("Made by Fantus");
 	UpdateProcess(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
 	if (!interaction.isCommand()) return;
+
+	if (process.argv[2] === "dev" && interaction.user.id !== "121080735187730434") {
+		return interaction.reply({
+			content: "Bot is being modified, Fantus will let you know when it is available again.",
+			ephemeral: true,
+		});
+	}
 
 	const command = client.commands.get(interaction.commandName);
 

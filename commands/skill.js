@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 let data = require("../data/skills.json");
+const { MessageEmbed } = require("discord.js");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -35,14 +36,20 @@ module.exports = {
 				.addIntegerOption((option) =>
 					option.setName("level").setDescription("The skills level").setRequired(true)
 				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName("removeuser")
+				.setDescription("Admin Only. Removes a user from the list.")
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
 			case "setchannel":
 				return setchannel(interaction, client);
-
 			case "register":
 				return register(interaction, client);
+			case "removeUser":
+				return removeUser(interaction, client);
 		}
 		return interaction.reply({
 			content: "Invalid Subcommand",
@@ -161,3 +168,5 @@ async function register(interaction, client) {
 
 	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
+
+async function removeUser(interaction, client) {}

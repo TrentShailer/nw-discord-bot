@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 let data = require("../data/builds.json");
+const { MessageEmbed } = require("discord.js");
 
 module.exports = {
 	data: new SlashCommandBuilder()
