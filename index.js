@@ -35,10 +35,10 @@ for (const file of commandFiles) {
 client.once("ready", async () => {
 	console.log("Ready!");
 	if (process.argv[2] === "dev") {
-		client.user.setActivity("Under Development");
+		client.user.setActivity("Under Development", { type: "PLAYING" });
 		client.user.setStatus("dnd");
 	} else {
-		client.user.setActivity("Made by Fantus");
+		client.user.setActivity("Fantus", { type: "WATCHING" });
 		client.user.setStatus("online");
 	}
 	UpdateProcess(client);
