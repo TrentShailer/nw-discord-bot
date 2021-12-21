@@ -141,6 +141,14 @@ module.exports = {
 							["Void Gauntlet", "void"],
 						])
 				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName("remove_user")
+				.setDescription("Admin Only - Removes a user from the list")
+				.addMentionableOption((option) =>
+					option.setName("user").setDescription("User to remove").setRequired(true)
+				)
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
@@ -155,6 +163,8 @@ module.exports = {
 
 			case "edit":
 				return edit(interaction, client);
+			case "remove_user":
+				return removeUser(interaction, client);
 		}
 		return interaction.reply({
 			content: "Invalid Subcommand",
@@ -182,7 +192,7 @@ async function GetBuildMessage(members, build) {
 	await members.fetch(build.userId);
 	let member = members.cache.get(build.userId);
 	let name = member ? member.displayName : "undefined";
-	return `\`${name}\` — <:nw_${build.primary}:${emoteIds[build.primary]}> — <:nw_${
+	return `\`${name}\` — <:nw_${build.primary}:${emoteIds[build.primary]}>    <:nw_${
 		build.secondary
 	}:${emoteIds[build.secondary]}>\n`;
 }
@@ -191,9 +201,16 @@ async function GetMessage(client) {
 	await client.channels.fetch(data.channelId);
 	let channel = client.channels.cache.get(data.channelId);
 	let members = channel.guild.members;
+
+	let embed = new MessageEmbed()
+		.setColor("#4caf50")
+		.setTitle("Builds")
+		.setFooter("Use `/build` and follow the prompts to add your builds!");
+
 	let tanks = "";
 	let healers = "";
 	let dps = "";
+
 	for (const build of data.builds) {
 		let message = await GetBuildMessage(members, build);
 
@@ -202,16 +219,11 @@ async function GetMessage(client) {
 		else if (build.role === "dps") dps += message;
 	}
 
-	return `
-**Tank**
-${tanks}
-**Healer**
-${healers}
-**DPS**
-${dps}
+	embed.addField("Tank", tanks, true);
+	embed.addField("Healer", healers, true);
+	embed.addField("DPS", dps, true);
 
-
-*Use \`/build\` and follow the prompts to add your build!*`;
+	return embed;
 }
 
 async function SaveData(client) {
@@ -221,7 +233,8 @@ async function SaveData(client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit(await GetMessage(client));
+	let content = await GetMessage(client);
+	message.edit({ embeds: [content] });
 }
 
 async function setchannel(interaction, client) {
@@ -236,7 +249,7 @@ async function setchannel(interaction, client) {
 	data.channelId = channelId;
 
 	let content = await GetMessage(client);
-	let message = await client.channels.cache.get(channelId).send(content);
+	let message = await client.channels.cache.get(channelId).send({ embeds: [content] });
 
 	const messageId = message.id;
 
@@ -322,4 +335,20 @@ async function edit(interaction, client) {
 			ephemeral: true,
 		});
 	}
+}
+
+async function removeUser(interaction, client) {
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
+		return interaction.reply({
+			content: "You need administrator permissions to use this command",
+			ephemeral: true,
+		});
+
+	let userId = interaction.options.get("user").value;
+
+	data.entries = data.entries.filter((entry) => entry.userId !== userId);
+
+	await SaveData(client);
+	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }
