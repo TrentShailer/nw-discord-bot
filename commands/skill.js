@@ -51,7 +51,7 @@ module.exports = {
 				return setchannel(interaction, client);
 			case "register":
 				return register(interaction, client);
-			case "removeUser":
+			case "remove_user":
 				return removeUser(interaction, client);
 		}
 		return interaction.reply({
