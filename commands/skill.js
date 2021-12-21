@@ -121,7 +121,8 @@ async function SaveData(client) {
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
-	message.edit(await GetMessage(client));
+	let content = await GetMessage(client);
+	message.edit({ embeds: [content] });
 }
 
 async function setchannel(interaction, client) {
