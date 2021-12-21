@@ -225,9 +225,10 @@ async function SaveData(client) {
 }
 
 async function setchannel(interaction, client) {
-	if (interaction.user.id !== "121080735187730434")
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
 		return interaction.reply({
-			content: "You don't have permission to do this",
+			content: "You need administrator permissions to use this command",
 			ephemeral: true,
 		});
 	const channelId = interaction.channelId;

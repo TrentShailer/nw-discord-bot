@@ -70,6 +70,25 @@ async function GetMessage(client) {
 	let channel = client.channels.cache.get(data.channelId);
 	let members = channel.guild.members;
 
+	let embed = new MessageEmbed()
+		.setColor("#1e88e5")
+		.setTitle("Crafting Skill Levels")
+		.setFooter(
+			"Use `/skill` and follow the prompts to add your skill!\nSet level to 0 to remove it.\nMinimum level 150 required to be listed."
+		);
+
+	let entriesWithName = [];
+
+	for (let skill of data.skills) {
+		let name = await GetName(members, skill);
+		entriesWithName.push({
+			name: name,
+			userId: skill.userId,
+			type: skill.type,
+			level: skill.level,
+		});
+	}
+
 	let categories = {
 		weaponsmithing: "",
 		armouring: "",
@@ -80,31 +99,19 @@ async function GetMessage(client) {
 		furnishing: "",
 	};
 
-	for (const skill of data.skills) {
-		let message = await GetSkillMessage(members, skill);
-		categories[skill.type] += message;
+	for (let skill of entriesWithName) {
+		categories[skill.type] += `\`${skill.name} — ${skill.level}\``;
 	}
 
-	return `
-**Weaponsmithing**
-${categories.weaponsmithing}
-**Armouring**
-${categories.armouring}
-**Engineering**
-${categories.engineering}
-**Jewelcrafting**
-${categories.jewelcrafting}
-**Arcana**
-${categories.arcana}
-**Cooking**
-${categories.cooking}
-**Furnishing**
-${categories.furnishing}
+	embed.addField("Weaponsmithing", categories.weaponsmithing, true);
+	embed.addField("Armouring", categories.armouring, true);
+	embed.addField("Engineering", categories.engineering, true);
+	embed.addField("Jewelcrafting", categories.jewelcrafting, true);
+	embed.addField("Arcana", categories.arcana, true);
+	embed.addField("Cooking", categories.cooking, true);
+	embed.addField("Furnishing", categories.furnishing, true);
 
-
-*Use \`/skill\` and follow the prompts to add your skill level!*
-*Set level to 0 to remove it*
-*Minimum 150 required to be listed*`;
+	return embed;
 }
 
 async function SaveData(client) {
@@ -118,9 +125,10 @@ async function SaveData(client) {
 }
 
 async function setchannel(interaction, client) {
-	if (interaction.user.id !== "121080735187730434")
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
 		return interaction.reply({
-			content: "You don't have permission to do this",
+			content: "You need administrator permissions to use this command",
 			ephemeral: true,
 		});
 	const channelId = interaction.channelId;
@@ -128,7 +136,7 @@ async function setchannel(interaction, client) {
 	data.channelId = channelId;
 
 	let content = await GetMessage(client);
-	let message = await client.channels.cache.get(channelId).send(content);
+	let message = await client.channels.cache.get(channelId).send({ embeds: [content] });
 
 	const messageId = message.id;
 

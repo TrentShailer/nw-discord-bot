@@ -37,6 +37,14 @@ module.exports = {
 							["Mangled Heights", "Mangled Heights"],
 						])
 				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName("remove_user")
+				.setDescription("Admin Only - Removes a user from the list")
+				.addMentionableOption((option) =>
+					option.setName("user").setDescription("User to remove").setRequired(true)
+				)
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
@@ -46,6 +54,8 @@ module.exports = {
 				return Update(interaction, client);
 			case "reset":
 				return reset(interaction, client);
+			case "remove_user":
+				return removeUser(interaction, client);
 		}
 		return interaction.reply({
 			content: "Invalid Subcommand",
@@ -67,9 +77,10 @@ module.exports = {
 };
 
 async function setchannel(interaction, client) {
-	if (interaction.user.id !== "121080735187730434")
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
 		return interaction.reply({
-			content: "You don't have permission to do this",
+			content: "You need administrator permissions to use this command",
 			ephemeral: true,
 		});
 	const channelId = interaction.channelId;
@@ -229,4 +240,20 @@ async function reset(interaction, client) {
 		await SaveData(client);
 		return interaction.reply({ content: "Action Successful", ephemeral: true });
 	}
+}
+
+async function removeUser(interaction, client) {
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
+		return interaction.reply({
+			content: "You need administrator permissions to use this command",
+			ephemeral: true,
+		});
+
+	let userId = interaction.options.get("user").value;
+
+	data.entries = data.entries.filter((entry) => entry.userId !== userId);
+
+	await saveData(client);
+	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }
