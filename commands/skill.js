@@ -114,6 +114,14 @@ async function GetMessage(client) {
 	return embed;
 }
 
+async function GetName(members, entry) {
+	await members.fetch(entry.userId);
+	let member = members.cache.get(entry.userId);
+	let name = member ? member.displayName : "undefined";
+
+	return `${name}`;
+}
+
 async function SaveData(client) {
 	fs.writeFileSync(path.join(__dirname, "../data/skills.json"), JSON.stringify(data, null, 2));
 
