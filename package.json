@@ -15,7 +15,7 @@
 		"nodemon": "^2.0.15"
 	},
 	"scripts": {
-		"dev": "nodemon index.js --ignore data/",
+		"dev": "node index.js dev",
 		"start": "node index.js",
 		"register": "node deploy-commands.js"
 	}
