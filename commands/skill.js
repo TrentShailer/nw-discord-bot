@@ -100,7 +100,7 @@ async function GetMessage(client) {
 	};
 
 	for (let skill of entriesWithName) {
-		categories[skill.type] += `\`${skill.name} — ${skill.level}\``;
+		categories[skill.type] += `\`${skill.name} — ${skill.level}\`\n`;
 	}
 
 	embed.addField("Weaponsmithing", categories.weaponsmithing, true);
