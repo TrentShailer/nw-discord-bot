@@ -254,6 +254,6 @@ async function removeUser(interaction, client) {
 
 	data.entries = data.entries.filter((entry) => entry.userId !== userId);
 
-	await saveData(client);
+	await SaveData(client);
 	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }

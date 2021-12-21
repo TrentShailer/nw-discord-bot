@@ -39,8 +39,11 @@ module.exports = {
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName("removeuser")
-				.setDescription("Admin Only. Removes a user from the list.")
+				.setName("remove_user")
+				.setDescription("Admin Only - Removes a user from the list")
+				.addMentionableOption((option) =>
+					option.setName("user").setDescription("User to remove").setRequired(true)
+				)
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
@@ -186,4 +189,18 @@ async function register(interaction, client) {
 	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
 
-async function removeUser(interaction, client) {}
+async function removeUser(interaction, client) {
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
+		return interaction.reply({
+			content: "You need administrator permissions to use this command",
+			ephemeral: true,
+		});
+
+	let userId = interaction.options.get("user").value;
+
+	data.skills = data.skills.filter((entry) => entry.userId !== userId);
+
+	await SaveData(client);
+	return interaction.reply({ content: "Action Successful", ephemeral: true });
+}
