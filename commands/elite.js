@@ -109,7 +109,7 @@ function GetAreaMessage(area) {
 
 	let timeMessage = `${hours > 0 ? `${hours}h ` : ``}${minutes > 0 ? `${minutes}m` : ``}`;
 
-	return `\`${area.area} ${timeMessage}\`\n`;
+	return `\`${area.area}|${timeMessage}\`\n`;
 }
 
 async function GetEntryMessage(entry) {
