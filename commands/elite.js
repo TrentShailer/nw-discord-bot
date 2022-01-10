@@ -4,6 +4,7 @@ const path = require("path");
 
 let data = require("../data/elites.json");
 const { MessageEmbed } = require("discord.js");
+const { default: axios } = require("axios");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,9 +14,6 @@ module.exports = {
 			subcommand
 				.setName("setchannel")
 				.setDescription("Sets the channel to view your elite cooldowns")
-		)
-		.addSubcommand((subcommand) =>
-			subcommand.setName("update").setDescription("Updates the cooldown message")
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -40,22 +38,36 @@ module.exports = {
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName("remove_user")
-				.setDescription("Admin Only - Removes a user from the list")
-				.addMentionableOption((option) =>
-					option.setName("user").setDescription("User to remove").setRequired(true)
+				.setName("track_ow_user")
+				.setDescription("Start tracking a player who is using the overwolf app")
+				.addStringOption((option) =>
+					option
+						.setName("name")
+						.setDescription("The in-game name of the player to start tracking")
+						.setRequired(true)
+				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName("untrack_ow_user")
+				.setDescription("Stop tracking a player who is using the overwolf app")
+				.addStringOption((option) =>
+					option
+						.setName("name")
+						.setDescription("The in-game name of the player to stop tracking")
+						.setRequired(true)
 				)
 		),
 	async execute(interaction, client) {
 		switch (interaction.options.getSubcommand()) {
 			case "setchannel":
 				return setchannel(interaction, client);
-			case "update":
-				return Update(interaction, client);
 			case "reset":
 				return reset(interaction, client);
-			case "remove_user":
-				return removeUser(interaction, client);
+			case "track_ow_user":
+				return track(interaction, client);
+			case "untrack_ow_user":
+				return untrack(interaction, client);
 		}
 		return interaction.reply({
 			content: "Invalid Subcommand",
@@ -157,23 +169,82 @@ async function GetMessage(client) {
 		entriesWithName.push({ name: name, userId: entry.userId, areas: entry.areas });
 	}
 
-	let sortedEntries = entriesWithName.sort((a, b) => {
-		let nameA = a.name;
-		let nameB = b.name;
-		if (nameA < nameB) return -1;
-		if (nameA > nameB) return 1;
-		return 0;
-	});
+	axios
+		.post("https://cooldowns.trentshailer.com/fetch", { names: data.ow_names })
+		.then(async (response) => {
+			for (let i = 0; i < response.data.length; i++) {
+				let areas = [];
+				let entry = response.data[i];
 
-	for (let i = 1; i <= sortedEntries.length; i++) {
-		let entry = sortedEntries[i - 1];
-		let entryMessage = await GetEntryMessage(entry);
-		if (entryMessage === undefined || entryMessage === "") continue;
-		embed.addField(await GetName(members, entry), entryMessage, true);
-		//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
+				areas = entry.POIs.map((item) => {
+					return { area: idToName(item.id), timestamp: item.timestamp };
+				});
+
+				entriesWithName.push({
+					name: entry.player_name,
+					areas: areas,
+				});
+			}
+			let sortedEntries = entriesWithName.sort((a, b) => {
+				let nameA = a.name;
+				let nameB = b.name;
+				if (nameA < nameB) return -1;
+				if (nameA > nameB) return 1;
+				return 0;
+			});
+
+			for (let i = 1; i <= sortedEntries.length; i++) {
+				let entry = sortedEntries[i - 1];
+				let entryMessage = await GetEntryMessage(entry);
+				if (entryMessage === undefined || entryMessage === "") continue;
+				embed.addField(await GetName(members, entry), entryMessage, true);
+				//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
+			}
+
+			return embed;
+		})
+		.catch(async (error) => {
+			let sortedEntries = entriesWithName.sort((a, b) => {
+				let nameA = a.name;
+				let nameB = b.name;
+				if (nameA < nameB) return -1;
+				if (nameA > nameB) return 1;
+				return 0;
+			});
+
+			for (let i = 1; i <= sortedEntries.length; i++) {
+				let entry = sortedEntries[i - 1];
+				let entryMessage = await GetEntryMessage(entry);
+				if (entryMessage === undefined || entryMessage === "") continue;
+				embed.addField(await GetName(members, entry), entryMessage, true);
+				//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
+			}
+
+			return embed;
+		});
+}
+
+function idToName(id) {
+	switch (id) {
+		case "myrkguard":
+			return "Myrkguard";
+		case "malevolence":
+			return "Malevolence";
+		case "scorched":
+			return "Scorched Mines";
+		case "forecastle":
+			return "Forecastle";
+		case "eternal":
+			return "Eternal Pools";
+		case "imperial":
+			return "Imperial Palace";
+		case "mangled":
+			return "Mangled Heights";
+		case "caminus":
+			return "Caminus";
+		default:
+			return "ERROR";
 	}
-
-	return embed;
 }
 
 async function SaveData(client) {
@@ -186,15 +257,13 @@ async function SaveData(client) {
 	let content = await GetMessage(client);
 	message.edit({ embeds: [content] });
 }
-async function Update(interaction, client) {
+async function Update(client) {
 	let channels = client.channels.cache;
 	let messages = channels.get(data.channelId).messages;
 	await messages.fetch(data.messageId);
 	let message = messages.cache.get(data.messageId);
 	let content = await GetMessage(client);
 	message.edit({ embeds: [content] });
-
-	interaction.reply({ content: "Action Successful", ephemeral: true });
 }
 
 async function reset(interaction, client) {
@@ -242,18 +311,26 @@ async function reset(interaction, client) {
 	}
 }
 
-async function removeUser(interaction, client) {
-	let permissions = interaction.memberPermissions;
-	if (!permissions.has("ADMINISTRATOR"))
-		return interaction.reply({
-			content: "You need administrator permissions to use this command",
-			ephemeral: true,
-		});
+async function track(interaction, client) {
+	const name = interaction.options.get("name").value;
 
-	let userId = interaction.options.get("user").value;
+	if (data.ow_names.includes(name)) {
+		return interaction.reply({ content: "Already Tracked", ephemeral: true });
+	}
 
-	data.entries = data.entries.filter((entry) => entry.userId !== userId);
-
+	data.ow_names.push(name);
 	await SaveData(client);
+
+	Update(client);
+	return interaction.reply({ content: "Action Successful", ephemeral: true });
+}
+
+async function untrack(interaction, client) {
+	const name = interaction.options.get("name").value;
+
+	data.ow_names = data.ow_names.filter((item) => item !== name);
+	await SaveData(client);
+
+	Update(client);
 	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }
