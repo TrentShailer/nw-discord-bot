@@ -29,7 +29,7 @@ module.exports = {
 							["Imperial Palace", "Imperial Palace"],
 							["Malevolence", "Malevolence"],
 							["Ambusti", "Ambusti"],
-							["Eternal Pool", "Eternal Pool"],
+							["Eternal Pools", "Eternal Pools"],
 							["Myrkguard", "Myrkguard"],
 							["Forecastle", "Forecastle"],
 							["Mangled Heights", "Mangled Heights"],
