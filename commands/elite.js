@@ -173,6 +173,8 @@ async function GetMessage(client) {
 		names: data.ow_names,
 	});
 
+	console.log(response);
+
 	if (response.data) {
 		for (let i = 0; i < response.data.length; i++) {
 			let areas = [];
