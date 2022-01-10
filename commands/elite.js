@@ -138,10 +138,10 @@ async function GetEmbed(client) {
 	});
 
 	for (let i = 1; i <= sortedEntries.length; i++) {
-		let entry = sortedEntries[i - 1];
-		let entryMessage = await GetEntryMessage(entry);
+		let sortedEntry = sortedEntries[i - 1];
+		let entryMessage = await GetEntryMessage(sortedEntry);
 		if (entryMessage === undefined || entryMessage === "") continue;
-		embed.addField(entry.name, entryMessage, true);
+		embed.addField(sortedEntry.name, entryMessage, true);
 	}
 
 	return embed;
