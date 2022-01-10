@@ -168,7 +168,7 @@ async function GetMessage(client) {
 		let name = await GetName(members, entry);
 		entriesWithName.push({ name: name, userId: entry.userId, areas: entry.areas });
 	}
-
+	/*
 	let response = await axios.post("https://cooldowns.trentshailer.com/fetch", {
 		names: data.ow_names,
 	});
@@ -191,7 +191,7 @@ async function GetMessage(client) {
 			});
 		}
 	}
-
+ */
 	let sortedEntries = entriesWithName.sort((a, b) => {
 		let nameA = a.name;
 		let nameB = b.name;
