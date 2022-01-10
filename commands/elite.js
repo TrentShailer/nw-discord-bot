@@ -169,59 +169,43 @@ async function GetMessage(client) {
 		entriesWithName.push({ name: name, userId: entry.userId, areas: entry.areas });
 	}
 
-	axios
-		.post("https://cooldowns.trentshailer.com/fetch", { names: data.ow_names })
-		.then(async (response) => {
-			for (let i = 0; i < response.data.length; i++) {
-				let areas = [];
-				let entry = response.data[i];
+	let response = await axios.post("https://cooldowns.trentshailer.com/fetch", {
+		names: data.ow_names,
+	});
 
-				areas = entry.POIs.map((item) => {
-					return { area: idToName(item.id), timestamp: item.timestamp };
-				});
+	if (response.data) {
+		for (let i = 0; i < response.data.length; i++) {
+			let areas = [];
+			let entry = response.data[i];
 
-				entriesWithName.push({
-					name: entry.player_name,
-					areas: areas,
-				});
-			}
-			let sortedEntries = entriesWithName.sort((a, b) => {
-				let nameA = a.name;
-				let nameB = b.name;
-				if (nameA < nameB) return -1;
-				if (nameA > nameB) return 1;
-				return 0;
+			areas = entry.POIs.map((item) => {
+				return { area: idToName(item.id), timestamp: item.timestamp };
 			});
 
-			for (let i = 1; i <= sortedEntries.length; i++) {
-				let entry = sortedEntries[i - 1];
-				let entryMessage = await GetEntryMessage(entry);
-				if (entryMessage === undefined || entryMessage === "") continue;
-				embed.addField(await GetName(members, entry), entryMessage, true);
-				//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
-			}
-
-			return embed;
-		})
-		.catch(async (error) => {
-			let sortedEntries = entriesWithName.sort((a, b) => {
-				let nameA = a.name;
-				let nameB = b.name;
-				if (nameA < nameB) return -1;
-				if (nameA > nameB) return 1;
-				return 0;
+			entriesWithName.push({
+				name: entry.player_name,
+				areas: areas,
 			});
+		}
+	}
 
-			for (let i = 1; i <= sortedEntries.length; i++) {
-				let entry = sortedEntries[i - 1];
-				let entryMessage = await GetEntryMessage(entry);
-				if (entryMessage === undefined || entryMessage === "") continue;
-				embed.addField(await GetName(members, entry), entryMessage, true);
-				//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
-			}
+	let sortedEntries = entriesWithName.sort((a, b) => {
+		let nameA = a.name;
+		let nameB = b.name;
+		if (nameA < nameB) return -1;
+		if (nameA > nameB) return 1;
+		return 0;
+	});
 
-			return embed;
-		});
+	for (let i = 1; i <= sortedEntries.length; i++) {
+		let entry = sortedEntries[i - 1];
+		let entryMessage = await GetEntryMessage(entry);
+		if (entryMessage === undefined || entryMessage === "") continue;
+		embed.addField(await GetName(members, entry), entryMessage, true);
+		//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
+	}
+
+	return embed;
 }
 
 function idToName(id) {
