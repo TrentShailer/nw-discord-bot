@@ -159,7 +159,7 @@ async function GetMessage(client) {
 		.setColor("#e53935")
 		.setTitle("Elite POI Cooldowns")
 		.setFooter(
-			"Use `/elite` and follow the prompts to add your cooldowns!\nReset your cooldown AFTER your run."
+			"Use `/elite` and follow the prompts to add your cooldowns!\nUse `/elite track_ow_user` to track your cooldowns if you use the overwolf app"
 		);
 
 	let entriesWithName = [];
@@ -180,7 +180,6 @@ async function GetMessage(client) {
 
 			areas = entry.POIs.map((item) => {
 				return {
-					name: item.player_name,
 					area: idToName(item.id),
 					timestamp: item.timestamp,
 				};
@@ -245,14 +244,6 @@ async function SaveData(client) {
 	let content = await GetMessage(client);
 	message.edit({ embeds: [content] });
 }
-async function Update(client) {
-	let channels = client.channels.cache;
-	let messages = channels.get(data.channelId).messages;
-	await messages.fetch(data.messageId);
-	let message = messages.cache.get(data.messageId);
-	let content = await GetMessage(client);
-	message.edit({ embeds: [content] });
-}
 
 async function reset(interaction, client) {
 	const area = interaction.options.get("area").value;
@@ -309,7 +300,6 @@ async function track(interaction, client) {
 	data.ow_names.push(name);
 	await SaveData(client);
 
-	Update(client);
 	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }
 
@@ -319,6 +309,5 @@ async function untrack(interaction, client) {
 	data.ow_names = data.ow_names.filter((item) => item !== name);
 	await SaveData(client);
 
-	Update(client);
 	return interaction.reply({ content: "Action Successful", ephemeral: true });
 }
