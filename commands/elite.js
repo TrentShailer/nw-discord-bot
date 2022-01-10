@@ -77,42 +77,79 @@ module.exports = {
 	async UpdateProcess(client) {
 		setInterval(async () => {
 			if (data.messageId !== undefined && data.messageId !== "") {
-				let channels = client.channels.cache;
-				let messages = channels.get(data.channelId).messages;
-				await messages.fetch(data.messageId);
-				let message = messages.cache.get(data.messageId);
-				let content = await GetMessage(client);
-				message.edit({ embeds: [content] });
+				await UpdateEmbed(client);
 			}
 		}, 60000);
 	},
 };
 
-async function setchannel(interaction, client) {
-	let permissions = interaction.memberPermissions;
-	if (!permissions.has("ADMINISTRATOR"))
-		return interaction.reply({
-			content: "You need administrator permissions to use this command",
-			ephemeral: true,
-		});
-	const channelId = interaction.channelId;
+async function UpdateEmbed(client) {
+	let channels = client.channels.cache;
+	let messages = channels.get(data.channelId).messages;
+	await messages.fetch(data.messageId);
+	let message = messages.cache.get(data.messageId);
+	let content = await GetEmbed(client);
+	message.edit({ embeds: [content] });
+}
 
-	data.channelId = channelId;
+async function GetName(members, entry) {
+	await members.fetch(entry.userId);
+	let member = members.cache.get(entry.userId);
+	let name = member ? member.displayName : "undefined";
 
-	let content = await GetMessage(client);
-	let message = await client.channels.cache.get(channelId).send({ embeds: [content] });
+	return `**${name}**`;
+}
 
-	const messageId = message.id;
+async function GetEmbed(client) {
+	await client.channels.fetch(data.channelId);
+	let channel = client.channels.cache.get(data.channelId);
+	let members = channel.guild.members;
 
-	data.messageId = messageId;
+	let embed = new MessageEmbed()
+		.setColor("#e53935")
+		.setTitle("Elite POI Cooldowns")
+		.setFooter(
+			"Use `/elite` and follow the prompts to add your cooldowns!\nUse `/elite track_ow_user` to track your cooldowns if you use the overwolf app"
+		);
 
-	SaveData(client);
-	interaction.reply({ content: "Elites will now be displayed here", ephemeral: true });
+	let entriesWithName = [];
+
+	for (let entry of data.entries) {
+		let name = await GetName(members, entry);
+		entriesWithName.push({ name: name, areas: entry.areas });
+	}
+
+	let response = await axios.post("https://cooldowns.trentshailer.com/fetch", {
+		names: data.ow_names,
+	});
+
+	if (response.data) {
+		for (let i = 0; i < response.data.length; i++) {
+			entriesWithName.push(await ConvertOWToStandard(response.data[i]));
+		}
+	}
+
+	let sortedEntries = entriesWithName.sort((a, b) => {
+		let nameA = a.name;
+		let nameB = b.name;
+		if (nameA < nameB) return -1;
+		if (nameA > nameB) return 1;
+		return 0;
+	});
+
+	for (let i = 1; i <= sortedEntries.length; i++) {
+		let entry = sortedEntries[i - 1];
+		let entryMessage = await GetEntryMessage(entry);
+		if (entryMessage === undefined || entryMessage === "") continue;
+		embed.addField(entry.name, entryMessage, true);
+	}
+
+	return embed;
 }
 
 function GetAreaMessage(area) {
-	let now = new Date();
-	let diff = area.timestamp - now.getTime();
+	let now = Date.now();
+	let diff = area.timestamp - now;
 	if (diff < 0) {
 		return ``;
 	}
@@ -120,6 +157,9 @@ function GetAreaMessage(area) {
 	let minutes = Math.floor((diff - hours * 3600000) / 60000);
 
 	let timeMessage = `${hours > 0 ? `${hours}h ` : ``}${minutes > 0 ? `${minutes}m` : ``}`;
+	if (timeMessage === "") {
+		timeMessage = "< 1m";
+	}
 
 	return `\`${area.area}│${timeMessage}\`\n`;
 }
@@ -142,73 +182,43 @@ async function GetEntryMessage(entry) {
 	return `${areas}`;
 }
 
-async function GetName(members, entry) {
-	await members.fetch(entry.userId);
-	let member = members.cache.get(entry.userId);
-	let name = member ? member.displayName : "undefined";
+async function ConvertOWToStandard(entry) {
+	let areas = [];
+	let entry = response.data[i];
 
-	return `**${name}**`;
+	areas = entry.POIs.map((item) => {
+		return {
+			area: idToName(item.id),
+			timestamp: item.timestamp,
+		};
+	});
+
+	return {
+		name: `**${entry.player_name}**`,
+		areas: areas,
+	};
 }
 
-async function GetMessage(client) {
-	await client.channels.fetch(data.channelId);
-	let channel = client.channels.cache.get(data.channelId);
-	let members = channel.guild.members;
+async function setchannel(interaction, client) {
+	let permissions = interaction.memberPermissions;
+	if (!permissions.has("ADMINISTRATOR"))
+		return interaction.reply({
+			content: "You need administrator permissions to use this command",
+			ephemeral: true,
+		});
+	const channelId = interaction.channelId;
 
-	let embed = new MessageEmbed()
-		.setColor("#e53935")
-		.setTitle("Elite POI Cooldowns")
-		.setFooter(
-			"Use `/elite` and follow the prompts to add your cooldowns!\nUse `/elite track_ow_user` to track your cooldowns if you use the overwolf app"
-		);
+	data.channelId = channelId;
 
-	let entriesWithName = [];
+	let content = await GetMessage(client);
+	let message = await client.channels.cache.get(channelId).send({ embeds: [content] });
 
-	for (let entry of data.entries) {
-		let name = await GetName(members, entry);
-		entriesWithName.push({ name: name, userId: entry.userId, areas: entry.areas });
-	}
-	/*
-	let response = await axios.post("https://cooldowns.trentshailer.com/fetch", {
-		names: data.ow_names,
-	});
+	const messageId = message.id;
 
-	if (response.data) {
-		for (let i = 0; i < response.data.length; i++) {
-			let areas = [];
-			let entry = response.data[i];
+	data.messageId = messageId;
 
-			areas = entry.POIs.map((item) => {
-				return {
-					area: idToName(item.id),
-					timestamp: item.timestamp,
-				};
-			});
-
-			entriesWithName.push({
-				name: entry.player_name,
-				areas: areas,
-			});
-		}
-	}
- */
-	let sortedEntries = entriesWithName.sort((a, b) => {
-		let nameA = a.name;
-		let nameB = b.name;
-		if (nameA < nameB) return -1;
-		if (nameA > nameB) return 1;
-		return 0;
-	});
-
-	for (let i = 1; i <= sortedEntries.length; i++) {
-		let entry = sortedEntries[i - 1];
-		let entryMessage = await GetEntryMessage(entry);
-		if (entryMessage === undefined || entryMessage === "") continue;
-		embed.addField(await GetName(members, entry), entryMessage, true);
-		//if (i % 2 === 0) embed.addField("\u200b", "\u200b");
-	}
-
-	return embed;
+	SaveData(client);
+	interaction.reply({ content: "Elites will now be displayed here", ephemeral: true });
 }
 
 function idToName(id) {
@@ -237,12 +247,7 @@ function idToName(id) {
 async function SaveData(client) {
 	fs.writeFileSync(path.join(__dirname, "../data/elites.json"), JSON.stringify(data, null, 2));
 
-	let channels = client.channels.cache;
-	let messages = channels.get(data.channelId).messages;
-	await messages.fetch(data.messageId);
-	let message = messages.cache.get(data.messageId);
-	let content = await GetMessage(client);
-	message.edit({ embeds: [content] });
+	UpdateEmbed(client);
 }
 
 async function reset(interaction, client) {

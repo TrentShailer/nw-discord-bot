@@ -20,7 +20,7 @@ if (!fs.existsSync(path.join(__dirname, "./data/skills.json"))) {
 }
 
 if (!fs.existsSync(path.join(__dirname, "./data/elites.json"))) {
-	elites = { channelId: "", messageId: "", entries: [] };
+	elites = { channelId: "", messageId: "", ow_names: [], entries: [] };
 	fs.writeFileSync(path.join(__dirname, "./data/elites.json"), JSON.stringify(elites));
 }
 
