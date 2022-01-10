@@ -184,7 +184,6 @@ async function GetEntryMessage(entry) {
 
 async function ConvertOWToStandard(entry) {
 	let areas = [];
-	let entry = response.data[i];
 
 	areas = entry.POIs.map((item) => {
 		return {
